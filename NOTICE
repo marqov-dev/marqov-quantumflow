@@ -1,0 +1,11 @@
+marqov-quantumflow
+
+This product is a fork of QuantumFlow (https://github.com/gecrooks/quantumflow),
+Copyright 2020- Gavin E. Crooks and contributors, licensed under the Apache
+License, Version 2.0.
+
+This fork is maintained by Marqov. It is based on upstream tag v1.4.0
+(commit 31d5058708588c5d40934b1cc482ab83829c4e9c). Modifications by Marqov are
+limited to packaging metadata (distribution name "marqov-quantumflow", version
+source) and this NOTICE. The original LICENSE and all source copyright headers
+are retained unchanged.

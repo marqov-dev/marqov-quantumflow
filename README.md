@@ -1,3 +1,8 @@
+> **Note:** This is `marqov-quantumflow`, a fork of
+> [QuantumFlow](https://github.com/gecrooks/quantumflow) (Apache-2.0) maintained
+> by Marqov, based on upstream `v1.4.0`. The import package name remains
+> `quantumflow`. See `NOTICE` for details.
+
 #  QuantumFlow: A Quantum Algorithms Development Toolkit
 
 A cross-compiler for gate based models of quantum computing
