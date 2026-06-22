@@ -1,0 +1,54 @@
+name: marqov-quantumflow CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  test-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - axis: floor
+            numpy: "numpy==1.26.0"
+            scipy: "scipy==1.11.2"
+          - axis: ceiling
+            numpy: "numpy<2.4"
+            scipy: "scipy"
+    name: test (py3.12, ${{ matrix.axis }})
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # setuptools_scm needs tags/history
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # MINIMAL install on purpose. We do NOT install ".[dev]" — it pulls heavy
+      # optional SDKs (qiskit, cirq, qutip, pyquil, amazon-braket-sdk) whose own
+      # numpy/scipy constraints could drag the axis pin off its target or fail
+      # resolution, silently defeating the dual-axis test. Pin numpy/scipy FIRST
+      # so they are authoritative, add pytest, then install only the fork's core
+      # runtime deps. QuantumFlow's integration tests (x*_test.py) each call
+      # pytest.importorskip(...) at module top, so without those SDKs they SKIP
+      # cleanly — I6 validates the numerical CORE across the numpy/scipy matrix,
+      # which is exactly where the scipy-cap compatibility risk lives.
+      - name: Pin numpy/scipy to the axis, add pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install "${{ matrix.numpy }}" "${{ matrix.scipy }}" pytest
+      - name: Install the fork's core runtime deps (must NOT move numpy/scipy)
+        run: pip install .
+      - name: Assert installed numpy/scipy still honor the axis (pin is authoritative)
+        run: |
+          python - <<'PY'
+          import numpy, scipy
+          print("numpy", numpy.__version__, "scipy", scipy.__version__)
+          PY
+      - name: Run QuantumFlow's bundled test suite (integration tests self-skip)
+        run: pytest quantumflow -q -rs   # -rs lists skipped tests so the skips are visible, not silent
+      - name: Packaging metadata check
+        run: ./tools/check_metadata.sh
