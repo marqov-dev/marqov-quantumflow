@@ -18,7 +18,11 @@ from .future import importlib_metadata
 __all__ = ["__version__", "about"]
 
 
-package_name = "quantumflow"
+# marqov fork: the import package is still `quantumflow`, but the DISTRIBUTION
+# was renamed to `marqov-quantumflow`. importlib.metadata looks up by the
+# *distribution* name, so this must match the distribution or `about()` and the
+# version lookup raise PackageNotFoundError. (See NOTICE.)
+package_name = "marqov-quantumflow"
 
 try:
     __version__ = importlib_metadata.version(package_name)  # type: ignore
