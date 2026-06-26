@@ -17,6 +17,9 @@ requires-python =">=3.10"
 authors = [
   {name = "Gavin E. Crooks", email = "gavincrooks@gmail.com"},
 ]
+maintainers = [
+  {name = "Marqov"},
+]
 
 description = "Cross compiler for gate based models of quantum computing"
 readme = "README.md"
@@ -57,11 +60,10 @@ dependencies = [
 
 
 [project.urls]
-Homepage = "https://github.com/gecrooks/quantumflow/"
-# Documentation = "https://readthedocs.org"
-Repository = "https://github.com/gecrooks/quantumflow.git"
-Issues = "https://github.com/gecrooks/quantumflow/issues"
-# Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+Homepage = "https://github.com/marqov-dev/marqov-quantumflow"
+Repository = "https://github.com/marqov-dev/marqov-quantumflow.git"
+Issues = "https://github.com/marqov-dev/marqov-quantumflow/issues"
+Upstream = "https://github.com/gecrooks/quantumflow"
 
 
 [project.optional-dependencies]
