@@ -27,6 +27,21 @@ assert not bad, f"direct-URL deps present: {bad}"
 
 import quantumflow as qf  # noqa: E402
 
+# Guard against cwd/sys.path shadowing. If this script is run from the repo root,
+# `import quantumflow` resolves to ./quantumflow (the source tree) and
+# importlib.metadata reads a local *.egg-info — so the check would verify the
+# SOURCE, not the installed wheel under test. Require that the imported package
+# lives in this interpreter's site-packages.
+import os                       # noqa: E402
+import sysconfig               # noqa: E402
+_site = os.path.realpath(sysconfig.get_paths()["purelib"])
+_qf = os.path.realpath(getattr(qf, "__file__", "") or "")
+assert _qf.startswith(_site), (
+    f"imported quantumflow from {_qf!r}, not site-packages ({_site!r}). "
+    "Run verify_wheel.py from a NEUTRAL cwd (e.g. /tmp), not the source repo "
+    "root, so it verifies the INSTALLED package and not the source tree."
+)
+
 # The SDK's QuantumFlow contract has TWO parts, derived from marqov/circuits.py.
 # 3a. MODULE-LEVEL `qf.*` symbols (17): the gate classes, Circuit, State,
 #     transpile, and the two braket interop functions.
