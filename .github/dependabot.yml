@@ -1,0 +1,9 @@
+# Keeps the SHA-pinned actions in marqov-fork-ci.yml current: Dependabot
+# opens PRs that bump the pinned commit (and the trailing version comment)
+# when the upstream actions release.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
