@@ -5,7 +5,7 @@
 .DEFAULT_GOAL := help
 
 PROJECT = quantumflow
-FILES = $(PROJECT) docs/conf.py setup.py examples/
+FILES = $(PROJECT) docs/conf.py examples/
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -79,15 +79,14 @@ pragmas:	## Report all pragmas in code
 	@echo "** Typecheck pragmas **"
 	@grep '# type:' --color -r -n $(FILES) || echo "No Typecheck Pragmas"
 
-build: ## Setuptools build
-	./setup.py clean --all
-	./setup.py sdist bdist_wheel
+build: ## Build sdist and wheel (requires 'build': pip install build)
+	python -m build
 
 requirements: ## Make requirements.txt
 	pip freeze > requirements.txt
 
-clean: ## Clean up after setuptools
-	./setup.py clean --all
+clean: ## Clean up build artifacts
+	rm -rf dist build *.egg-info
 
 
 .PHONY: help

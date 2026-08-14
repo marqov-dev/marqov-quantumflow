@@ -39,19 +39,17 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",     
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
-    "License :: OSI Approved :: Apache Software License",
 ]
 
 
 dependencies = [
     "typing_extensions       >= 4.1.1",
-    "numpy",                   
-    "scipy                  ",    # v1.10 breaks tests
+    "numpy",
+    "scipy",
     "sympy                   >= 1.6",
     "networkx",
-    "decorator               < 5.0.0",     # 5.0 breaks networkx dependancy 
     "opt_einsum",
     "pillow                  != 9.1.0",    # 9.1.0 has problems on some versions of MacOS
                                         # https://github.com/python-pillow/Pillow/issues/6179
@@ -122,7 +120,7 @@ fallback_version = "0.0.0-dev"
 # write_to = "example_python_project/_version.py"
 
 
-[tools.ruff]
+[tool.ruff]
 # https://docs.astral.sh/ruff/configuration/
 
 
@@ -133,7 +131,9 @@ indent-width = 4
 ignore = []
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+# E402: quantumflow/__init__.py runs the coinstall guard before its star
+# imports on purpose — the warning must fire even if a later import crashes.
+"__init__.py" = ["F401", "F403", "E402"]
 
 
 # pytest configuration

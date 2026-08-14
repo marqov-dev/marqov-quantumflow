@@ -136,3 +136,12 @@ junk
 devnote*.*
 proto
 docs/_templates/version.html
+
+# Project-local venvs (CI mirrors and packaging; created with custom names,
+# so the generic venv/.venv rules above don't cover them)
+.ci-floor/
+.ci-ceiling/
+.build-venv/
+.pypi-venv/
+.testpypi-venv/
+.verify-venv/
