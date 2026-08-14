@@ -50,6 +50,38 @@
 #   ext
 
 
+# Fork guard: the marqov-quantumflow distribution installs this same top-level
+# "quantumflow" package as upstream's quantumflow distribution. pip performs no
+# file-conflict detection, so if BOTH distributions are installed the second
+# silently overwrites the first and the survivor is half-broken. Detect that
+# state and warn. Two targeted metadata lookups — not a scan of all installed
+# distributions — so the import-time cost is negligible.
+
+
+def _warn_if_upstream_coinstalled() -> None:
+    import importlib.metadata
+    import warnings
+
+    try:
+        importlib.metadata.version("quantumflow")
+        importlib.metadata.version("marqov-quantumflow")
+    except importlib.metadata.PackageNotFoundError:
+        return  # zero or one distribution present: healthy
+    warnings.warn(
+        "Both 'marqov-quantumflow' and upstream 'quantumflow' distributions are "
+        "installed in this environment. They provide the same top-level "
+        "'quantumflow' package and overwrite each other's files. Uninstall both "
+        "('pip uninstall quantumflow marqov-quantumflow') and reinstall exactly "
+        "one.",
+        RuntimeWarning,
+        stacklevel=2,
+    )
+
+
+_warn_if_upstream_coinstalled()
+del _warn_if_upstream_coinstalled
+
+
 from .channels import *
 from .circuits import *
 from .config import *
