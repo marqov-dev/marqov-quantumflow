@@ -2,16 +2,39 @@ name: marqov-quantumflow CI
 
 on:
   push:
-    branches: ["**"]
+    branches: [main]
     tags: ["v*"]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
 
 # Default token scope for all jobs; publish jobs add id-token below.
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  ci-scope:
+    # Drafts allocate no runner. Marking ready emits ready_for_review below.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft != true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run_code: ${{ steps.scope.outputs.run_code }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: scope
+        name: Classify documentation-only changes
+        run: python3 .github/scripts/ci_scope.py
+
   test-matrix:
+    needs: ci-scope
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft != true) && (needs.ci-scope.result != 'success' || needs.ci-scope.outputs.run_code != 'false') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -25,6 +48,11 @@ jobs:
             scipy: "scipy"
     name: test (py3.12, ${{ matrix.axis }})
     steps:
+      - name: Require a successful scope decision
+        env:
+          SCOPE_RESULT: ${{ needs.ci-scope.result }}
+          RUN_CODE: ${{ needs.ci-scope.outputs.run_code }}
+        run: test "$SCOPE_RESULT" = success && test "$RUN_CODE" = true
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           fetch-depth: 0   # setuptools_scm needs tags/history
@@ -80,9 +108,16 @@ jobs:
         run: ./tools/check_metadata.sh
 
   braket-conversion:
+    needs: ci-scope
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft != true) && (needs.ci-scope.result != 'success' || needs.ci-scope.outputs.run_code != 'false') }}
     runs-on: ubuntu-latest
     name: Braket conversion (py3.12)
     steps:
+      - name: Require a successful scope decision
+        env:
+          SCOPE_RESULT: ${{ needs.ci-scope.result }}
+          RUN_CODE: ${{ needs.ci-scope.outputs.run_code }}
+        run: test "$SCOPE_RESULT" = success && test "$RUN_CODE" = true
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with: { fetch-depth: 0 }
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
